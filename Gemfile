@@ -13,10 +13,9 @@ gem 'rubocop', '~> 1.9'
 
 # Rack v2 dropped support for Ruby 2.2 and higher.
 if RUBY_VERSION < '2.2'
-  gem 'rack', '<3.0.0', '~> 1.6'
+  gem 'rack', '~> 1.6'
 else
-  gem 'rack', '<3.0.0'
-  # gem 'rackup'
+  gem 'rack'
 end
 gem 'rack-test'
 

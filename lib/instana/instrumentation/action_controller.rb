@@ -12,7 +12,8 @@ module Instana
           }
         }
 
-        request.env['INSTANA_HTTP_PATH_TEMPLATE'] = matched_path_template
+        # TODO: This causes issues with the authenticity tokens
+        # request.env['INSTANA_HTTP_PATH_TEMPLATE'] = matched_path_template
         ::Instana::Tracer.trace(:actioncontroller, call_payload) { super(*args) }
       end
 

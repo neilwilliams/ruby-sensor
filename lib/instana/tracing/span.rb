@@ -123,7 +123,7 @@ module Instana
         elsif @data[:n] == :activerecord
           @data[:data][:activerecord][:error] = e.message
         else
-          log(:error, Time.now, message: e.message, parameters: e.class.to_s)
+          log(:error, Time.now, **{ message: e.message, parameters: e.class.to_s })
         end
         e.instance_variable_set(:@instana_logged, true)
       end

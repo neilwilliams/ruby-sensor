@@ -8,9 +8,9 @@ module Instana
   class Tracer
     # Support ::Instana::Tracer.xxx call style for the instantiated tracer
     class << self
-      def method_missing(method, *args, &block)
+      def method_missing(method, *args, **kwargs, &block)
         if ::Instana.tracer.respond_to?(method)
-          ::Instana.tracer.send(method, *args, &block)
+          ::Instana.tracer.send(method, *args, **kwargs, &block)
         else
           super
         end
@@ -180,7 +180,11 @@ module Instana
       self.current_span.set_tags(kvs)
       self.current_span.close
 
-      self.current_span = self.current_span.parent || nil
+      if self.current_span.parent
+        self.current_span = self.current_span.parent
+      else
+        self.current_span = nil
+      end
     end
 
     # Closes out the current span in the current trace

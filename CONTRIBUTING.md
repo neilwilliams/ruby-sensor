@@ -68,6 +68,38 @@ local git repository using the following command:
 git commit -s
 ```
 
+## Testing
+Setup the latest supported ruby version using [RVM](https://rvm.io/)
+```shell
+rvm use ruby-3.1.2@ruby-sensor --create
+```
+
+Execute the tests:
+```shell
+bundle exec rake test
+```
+
+<!--
+### Using appraisal
+
+TODO this is not possible locally yet it seems - we'd need to configure env vars for each appraisal set. Appraisal is only used in circleci.
+
+Run up dependent services using [docker-compose](https://docs.docker.com/compose/install/):
+```shell
+docker-compose up -d
+```
+
+Install the different versions of gems using appraisal:
+```shell
+bundle exec appraisal
+```
+
+Execute the tests:
+```shell
+bundle exec appraisal rake test
+```
+-->
+
 <!--
 ## Communication
 **FIXME** Please feel free to connect with us on our [Slack channel](link).
@@ -75,10 +107,6 @@ git commit -s
 ## Setup
 **FIXME** Please add any special setup instructions for your project to help the developer
 become productive quickly.
-
-## Testing
-**FIXME** Please provide information that helps the developer test any changes they make
-before submitting.
 
 ## Coding style guidelines
 **FIXME** Optional, but recommended: please share any specific style guidelines you might
