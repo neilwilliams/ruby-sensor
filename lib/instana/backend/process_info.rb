@@ -18,7 +18,7 @@ module Instana
       end
 
       def parent_pid
-        if in_container? && sched_pid != pid
+        if in_container? && !sched_pid.nil?
           sched_pid
         else
           pid
@@ -49,7 +49,7 @@ module Instana
 
       def memory_used
         if RbConfig::CONFIG['host_os'].include?('darwin')
-          rss / 1024
+          rss
         else
           rss * 4096
         end

@@ -13,17 +13,36 @@ Rake::TestTask.new(:test) do |t|
 
   t.libs << "test"
   t.libs << "lib"
- 
+
   if ENV['APPRAISAL_INITIALIZED']
     appraised_group = File.basename(ENV['BUNDLE_GEMFILE']).split(/_[0-9]+\./).first
     suite_files = Dir['test/{instrumentation,frameworks}/*_test.rb']
-        
+
     t.test_files = suite_files.select { |f| File.basename(f).start_with?(appraised_group) }
   else
     t.test_files = Dir[
       'test/*_test.rb',
       'test/{agent,tracing,backend,snapshot}/*_test.rb'
     ]
+  end
+end
+
+namespace :coverage do
+  task :merge_reports do
+    require 'simplecov'
+    require 'simplecov_json_formatter'
+
+    SimpleCov.start do
+      enable_coverage :branch
+      SimpleCov.collate Dir["partial_coverage_results/.resultset-*.json"] do
+        formatter SimpleCov::Formatter::MultiFormatter.new(
+          [
+            SimpleCov::Formatter::SimpleFormatter,
+            SimpleCov::Formatter::JSONFormatter
+          ]
+        )
+      end
+    end
   end
 end
 

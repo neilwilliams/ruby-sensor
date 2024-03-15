@@ -17,7 +17,7 @@ module Instana
               'X-INSTANA-L' => span_context.level.to_s
             }
 
-            context.params[:client_context] = JSON.dump(payload)
+            context.params[:client_context] = Base64.strict_encode64(JSON.dump(payload))
           end
 
           tags = {
@@ -25,7 +25,13 @@ module Instana
             type: context.params[:invocation_type]
           }.reject { |_, v| v.nil? }
 
-          ::Instana.tracer.trace(:"aws.lambda.invoke", {aws: {lambda: {invoke: tags}}}) { @handler.call(context) }
+          ::Instana.tracer.start_or_continue_trace(:"aws.lambda.invoke", {aws: {lambda: {invoke: tags}}}) do
+            response = @handler.call(context)
+            if response.respond_to? :status_code
+              ::Instana.tracer.log_info(:http => {:status => response.status_code })
+            end
+            response
+          end
         end
       end
 

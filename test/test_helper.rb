@@ -12,6 +12,7 @@ begin
 
     add_filter %r{^/test/}
 
+    command_name "Job #{ENV['CIRCLE_BUILD_NUM']}" if ENV['CIRCLE_BUILD_NUM']
     add_group(
       'In Process Collector',
       [%r{lib/instana/(agent|backend|tracing|collectors|open_tracing|snapshot)}, %r{lib/instana/[^/]+\.rb}]
@@ -26,9 +27,12 @@ begin
       add_filter %r{lib/instana/(activators|frameworks|instrumentation)}
     end
 
-    if ENV['CI']
-      formatter SimpleCov::Formatter::JSONFormatter
-    end
+    formatter SimpleCov::Formatter::MultiFormatter.new(
+      [
+        SimpleCov::Formatter::HTMLFormatter,
+        SimpleCov::Formatter::JSONFormatter
+      ]
+    )
   end
 rescue LoadError => _e
   nil
@@ -57,7 +61,7 @@ if ENV['CI']
                            ])
 else
   Minitest::Reporters.use!([
-                             MiniTest::Reporters::SpecReporter.new
+                             Minitest::Reporters::SpecReporter.new
                            ])
 end
 Minitest::Test.include(Instana::TestHelpers)

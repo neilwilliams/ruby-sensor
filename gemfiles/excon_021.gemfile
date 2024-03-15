@@ -5,8 +5,8 @@
 
 source "https://rubygems.org"
 
-gem "rake"
-gem "minitest", "5.9.1"
+gem "rack"
+gem "rackup"
 gem "minitest-reporters"
 gem "webmock"
 gem "puma"

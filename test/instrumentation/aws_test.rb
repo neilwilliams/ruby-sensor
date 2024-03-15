@@ -36,17 +36,18 @@ class AwsTest < Minitest::Test
   end
 
   def test_s3
-    dynamo = Aws::S3::Client.new(
+    s3_client = Aws::S3::Client.new(
       region: "local",
       access_key_id: "minioadmin",
       secret_access_key: "minioadmin",
+      force_path_style: "true",
       endpoint: "http://localhost:9000"
     )
 
     assert_raises Aws::S3::Errors::NoSuchBucket do
       Instana::Tracer.start_or_continue_trace(:s3_test, {}) do
-        dynamo.get_object(
-          bucket: 'sample_bucket',
+        s3_client.get_object(
+          bucket: 'sample-bucket',
           key: 'sample_key'
         )
       end
@@ -59,7 +60,7 @@ class AwsTest < Minitest::Test
     assert_equal entry_span[:s], s3_span[:p]
     assert_equal :s3, s3_span[:n]
     assert_equal 'get', s3_span[:data][:s3][:op]
-    assert_equal 'sample_bucket', s3_span[:data][:s3][:bucket]
+    assert_equal 'sample-bucket', s3_span[:data][:s3][:bucket]
     assert_equal 'sample_key', s3_span[:data][:s3][:key]
   end
 
@@ -192,5 +193,49 @@ class AwsTest < Minitest::Test
     assert_equal :"aws.lambda.invoke", lambda_span[:n]
     assert_equal 'Test', lambda_span[:data][:aws][:lambda][:invoke][:function]
     assert_equal 'Event', lambda_span[:data][:aws][:lambda][:invoke][:type]
+    assert_equal 200, lambda_span[:data][:http][:status]
+    assert_nil lambda_span[:ec]
+    assert_nil lambda_span[:stack]
+  end
+
+  def test_lambda_with_500_status
+    stub_request(:post, "https://lambda.local.amazonaws.com/2015-03-31/functions/Test/invocations")
+      .with(
+        body: "data",
+        headers: {
+          'X-Amz-Client-Context' => /.+/
+        }
+      )
+      .to_return(status: 500, body: '{"message": "Internal Server Error" }', headers: {})
+
+    lambda = Aws::Lambda::Client.new(
+      endpoint: 'https://lambda.local.amazonaws.com',
+      region: 'local',
+      access_key_id: "test",
+      secret_access_key: "test"
+    )
+
+    assert_raises(RuntimeError) do
+      Instana::Tracer.start_or_continue_trace(:lambda_test, {}) do
+        lambda.invoke(
+          function_name: 'Test',
+          invocation_type: 'Event',
+          payload: 'data'
+        )
+      end
+    end
+
+    spans = ::Instana.processor.queued_spans
+    lambda_span, _entry_span, *rest = spans
+
+    assert rest.empty?
+
+    assert_equal :"aws.lambda.invoke", lambda_span[:n]
+    assert_equal 'Test', lambda_span[:data][:aws][:lambda][:invoke][:function]
+    assert_equal 'Event', lambda_span[:data][:aws][:lambda][:invoke][:type]
+    refute_nil lambda_span[:ec]
+    assert_equal 1, lambda_span[:ec]
+    refute_nil lambda_span[:stack]
+    assert_equal 30, lambda_span[:stack].length # default limit is 30 in span.add_stack
   end
 end

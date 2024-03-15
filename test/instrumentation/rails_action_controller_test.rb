@@ -5,7 +5,16 @@ require 'test_helper'
 
 class RailsActionControllerTest < Minitest::Test
   include Rack::Test::Methods
-  APP = Rack::Builder.parse_file('test/support/apps/action_controller/config.ru').first
+  begin
+    ENV['INSTANA_TEST'] = nil
+    APP = Rack::Builder.parse_file('test/support/apps/action_controller/config.ru')
+  ensure
+    ENV['INSTANA_TEST'] = 'true'
+  end
+  railties_version = Gem::Specification.find_by_name('railties').version
+  if railties_version < Gem::Version.new('7.1.0')
+    APP = APP.first
+  end
 
   def app
     APP
@@ -39,7 +48,8 @@ class RailsActionControllerTest < Minitest::Test
     refute last_response.ok?
 
     spans = ::Instana.processor.queued_spans
-    assert_equal 2, spans.length
+    # 2 + 1 or more error log depending on Rails version
+    assert spans.length >= 3
 
     ac_span = find_first_span_by_name(spans, :actioncontroller)
 
@@ -61,7 +71,8 @@ class RailsActionControllerTest < Minitest::Test
     assert last_response.ok?
 
     spans = ::Instana.processor.queued_spans
-    assert_equal 3, spans.length
+    # 2 + 1 or more error log depending on Rails version
+    assert spans.length >= 3
 
     ac_span = find_first_span_by_name(spans, :actioncontroller)
 
@@ -80,7 +91,8 @@ class RailsActionControllerTest < Minitest::Test
     refute last_response.ok?
 
     spans = ::Instana.processor.queued_spans
-    assert_equal 2, spans.length
+    # 2 + 1 or more error log depending on Rails version
+    assert spans.length >= 3
 
     ac_span = find_first_span_by_name(spans, :actioncontroller)
 
@@ -102,7 +114,8 @@ class RailsActionControllerTest < Minitest::Test
     refute last_response.ok?
 
     spans = ::Instana.processor.queued_spans
-    assert_equal 1, spans.length
+    # 1 + 1 or more error log depending on Rails version
+    assert spans.length >= 2
 
     rack_span = find_first_span_by_name(spans, :rack)
 
@@ -122,7 +135,9 @@ class RailsActionControllerTest < Minitest::Test
     refute last_response.ok?
 
     spans = ::Instana.processor.queued_spans
-    assert_equal 2, spans.length
+
+    # 2 + 1 or more error log depending on Rails version
+    assert spans.length >= 3
 
     rack_span = find_first_span_by_name(spans, :rack)
     ac_span = find_first_span_by_name(spans, :actioncontroller)
@@ -144,7 +159,8 @@ class RailsActionControllerTest < Minitest::Test
     refute last_response.ok?
 
     spans = ::Instana.processor.queued_spans
-    assert_equal 1, spans.length
+    # 1 + 1 or more error log depending on Rails version
+    assert spans.length >= 2
 
     rack_span = find_first_span_by_name(spans, :rack)
 
@@ -159,7 +175,8 @@ class RailsActionControllerTest < Minitest::Test
     refute last_response.ok?
 
     spans = ::Instana.processor.queued_spans
-    assert_equal 2, spans.length
+    # 2 + 1 or more error log depending on Rails version
+    assert spans.length >= 3
 
     rack_span = find_first_span_by_name(spans, :rack)
     ac_span = find_first_span_by_name(spans, :actioncontroller)
@@ -183,5 +200,19 @@ class RailsActionControllerTest < Minitest::Test
 
     assert_equal false, rack_span.key?(:error)
     assert_equal '/base/world(.:format)', rack_span[:data][:http][:path_tpl]
+  end
+
+  def test_log
+    clear_all!
+
+    get '/base/log_warning'
+    assert last_response.ok?
+
+    spans = ::Instana.processor.queued_spans
+    assert spans[0][:data][:log]
+    log_span = spans[0][:data][:log]
+
+    assert_equal "Warn", log_span[:level]
+    assert_equal "This is a test warning", log_span[:message]
   end
 end

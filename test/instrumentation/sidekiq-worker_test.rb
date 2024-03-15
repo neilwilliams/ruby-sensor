@@ -5,12 +5,6 @@ require 'test_helper'
 require 'support/apps/sidekiq/boot'
 
 class SidekiqServerTest < Minitest::Test
-  def setup
-    Sidekiq.configure_client do |config|
-      config.redis = { url: ENV["REDIS_URL"] }
-    end
-  end
-
   def test_config_defaults
     assert ::Instana.config[:'sidekiq-worker'].is_a?(Hash)
     assert ::Instana.config[:'sidekiq-worker'].key?(:enabled)
@@ -161,6 +155,7 @@ class SidekiqServerTest < Minitest::Test
 
     assert_equal 'important', worker_span[:data][:'sidekiq-worker'][:queue]
     assert_equal 'SidekiqJobOne', worker_span[:data][:'sidekiq-worker'][:job]
+    assert       worker_span[:data][:'sidekiq-worker'][:'redis-url']
     assert_equal false, worker_span[:data][:'sidekiq-worker'][:job_id].nil?
   end
 
@@ -169,6 +164,7 @@ class SidekiqServerTest < Minitest::Test
 
     assert_equal 'important', worker_span[:data][:'sidekiq-worker'][:queue]
     assert_equal 'SidekiqJobTwo', worker_span[:data][:'sidekiq-worker'][:job]
+    assert       worker_span[:data][:'sidekiq-worker'][:'redis-url']
     assert_equal false, worker_span[:data][:'sidekiq-worker'][:job_id].nil?
 
     assert_equal true, worker_span[:data][:'sidekiq-worker'][:error]
@@ -178,6 +174,7 @@ class SidekiqServerTest < Minitest::Test
   def assert_client_span(client_span, job)
     assert_equal :'sidekiq-client', client_span[:n]
     assert_equal 'important', client_span[:data][:'sidekiq-client'][:queue]
+    assert       client_span[:data][:'sidekiq-client'][:'redis-url']
     assert_equal job.name, client_span[:data][:'sidekiq-client'][:job]
   end
 end

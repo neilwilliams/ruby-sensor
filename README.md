@@ -1,28 +1,14 @@
-<div align="center">
-<img src="https://disznc.s3.amazonaws.com/Ruby-Dashboard-2020-02-10-at-2.31.36-PM.png"/>
-</div>
-
 # Instana
 
-The Instana gem provides Ruby metrics and traces (request, queue & cross-host) for [Instana](https://www.instana.com/).
+The `instana` gem provides Ruby metrics and traces (request, queue & cross-host) for [Instana](https://www.instana.com/).
 
-[![CircleCI](https://circleci.com/gh/instana/ruby-sensor.svg?style=svg)](https://circleci.com/gh/instana/ruby-sensor)
-[![Gem Version](https://badge.fury.io/rb/instana.svg)](https://badge.fury.io/rb/instana)
-
-## Note
-
-This gem supports Ruby versions 2.0 or greater.
+This gem supports Ruby versions 2.7 or greater.
 
 Any and all feedback is welcome.  Happy Ruby visibility.
 
-[![rails](https://s3.amazonaws.com/instana/rails-logo.jpg?1)](http://rubyonrails.org/)
-[![roda](https://s3.amazonaws.com/instana/roda-logo.png?1)](http://roda.jeremyevans.net/)
-[![cuba](https://s3.amazonaws.com/instana/cuba-logo.png?1)](http://cuba.is/)
-[![mina logo 100px](https://cloud.githubusercontent.com/assets/395132/23832558/fcd5bdb2-0736-11e7-9809-3016e89698e2.png)](https://github.com/instana/mina-instana)
-[![sinatra](https://s3.amazonaws.com/instana/sinatra-logo.png?1)](http://www.sinatrarb.com/)
-[![padrino](https://s3.amazonaws.com/instana/padrino-logo.png?1)](http://padrinorb.com/)
-[![rack](https://s3.amazonaws.com/instana/rack-logo.png?1)](https://rack.github.io/)
-[![rack](https://user-images.githubusercontent.com/395132/27842764-27e0e452-610d-11e7-811f-8575f83b8944.png?1)](http://www.grpc.io/)
+[![Gem Version](https://badge.fury.io/rb/instana.svg)](https://badge.fury.io/rb/instana)
+[![CircleCI](https://circleci.com/gh/instana/ruby-sensor.svg?style=svg)](https://circleci.com/gh/instana/ruby-sensor)
+[![OpenTracing Badge](https://img.shields.io/badge/OpenTracing-enabled-blue.svg)](http://opentracing.io)
 
 ## Installation
 
@@ -42,25 +28,35 @@ Or install it yourself as:
 
 ## Usage
 
-The instana gem is a zero configuration tool that will automatically collect key metrics and distributed traces from your Ruby processes.  Just install and go.
+The `instana` gem is a zero configuration tool that will automatically collect key metrics and distributed traces from your Ruby processes.  Just install and go.
+
+### Supported Frameworks
+
+* [Cuba](https://cuba.is/)
+* [gRPC](https://grpc.io/)
+* [Padrino](https://padrinorb.com/)
+* [Roda](https://roda.jeremyevans.net/)
+* [Ruby on Rails](https://rubyonrails.org/)
+* [Rack](https://rack.github.io/)
+* [Sinatra](https://sinatrarb.com/)
 
 ## Configuration
 
-Although the gem has no configuration required for out of the box metrics and tracing, components can be configured if needed.  See our [Configuration](https://docs.instana.io/ecosystem/ruby/configuration/) page.
+Although the gem has no configuration required for out of the box metrics and tracing, components can be configured if needed.  See our [Configuration](https://www.ibm.com/docs/en/instana-observability/current?topic=ruby-configuration-configuring-instana-gem) page.
 
 ## Tracing
 
-This Ruby gem provides a simple API for tracing and also supports [OpenTracing](http://opentracing.io/).  See the [Ruby Tracing SDK](https://docs.instana.io/ecosystem/ruby/tracing-sdk/) and [OpenTracing](https://docs.instana.io/ecosystem/ruby/opentracing/) pages for details.
+This Ruby gem provides a simple API for tracing and also supports [OpenTracing](http://opentracing.io/).  See the [Ruby Tracing SDK](https://www.ibm.com/docs/en/instana-observability/current?topic=ruby-tracing-sdk) and [OpenTracing](https://www.ibm.com/docs/en/instana-observability/current?topic=ruby-opentracing) pages for details.
 
 ## Documentation
 
-You can find more documentation covering supported components and minimum versions in the Instana [documentation portal](https://docs.instana.io/ecosystem/ruby/).
+You can find more documentation covering supported components and minimum versions in the Instana [documentation portal](https://www.ibm.com/docs/en/instana-observability/current?topic=technologies-monitoring-ruby).
 
-# Want End User Monitoring (EUM)?
+## Want End User Monitoring (EUM)?
 
 Instana provides deep end user monitoring that links server side traces with browser events to give you a complete view from server to browser.
 
-See the [End User Monitoring](/products/website_monitoring/#configuration) page for more information.
+See the [End User Monitoring](https://www.ibm.com/docs/en/instana-observability/current?topic=instana-monitoring-websites) page for more information.
 
 ## Development
 
